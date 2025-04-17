@@ -62,19 +62,21 @@ def transform_vertices(vertices, a, b, g, t_x, t_y, t_z):
     R = get_rotation_matrix(a, b, g)
     t = np.array([t_x, t_y, t_z])
     
-    transformed = []
+    trans = []
     for x, y, z in vertices:
         vertex = np.array([x, y, z])
         rotated_vertex = np.dot(R, vertex)  
         x_rot, y_rot, z_rot = rotated_vertex
         
-        transformed.append([
+        trans.append([
             x_rot + t_x,
             y_rot + t_y,
             z_rot + t_z
         ])
     
-    return transformed
+    return trans
+
+
 V = []
 F = []
 for line in model:
