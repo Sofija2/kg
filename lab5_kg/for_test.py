@@ -7,7 +7,7 @@ start_time = time.time()
 print("Начало обработки модели...")
 
 print("Шаг 1: Загрузка модели и текстуры...")
-model = open("12268_banjofrog_v1_L3.obj")
+model = open("mod1.obj")
 texture_img = Image.open("12268_banjofrog_diffuse.jpg")
 texture_img = ImageOps.flip(texture_img)
 
@@ -109,9 +109,9 @@ for line in model:
 
 print(f"Шаг 3: OBJ загружен: вершин={len(V)}, текстурных координат={len(VT)}, полигонов={len(F)}")
 
-a = math.radians(20)
-b = math.radians(50)
-g = math.radians(10)
+a = math.radians(0)
+b = math.radians(0)
+g = math.radians(0)
 t_x, t_y, t_z = 0, 0, 10
 V_T = transform_vertices(V, a, b, g, t_x, t_y, t_z)
 print("Шаг 4: Трансформация вершин завершена")

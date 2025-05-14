@@ -11,7 +11,7 @@ U0 = IMAGE_WIDTH // 2
 V0 = IMAGE_HEIGHT // 2  
 
 def render_model(model_path, texture_path=None, 
-                 a=0, b=0, g=0, t_x=0, t_y=0, t_z=0.2,
+                 a=0, b=0, g=0, t_x=0.005,  t_y = -0.04, t_z =  0.2 ,
                  scale_x=1.0, scale_y=1.0, scale_z=1.0,
                  shift_x=0.0, shift_y=0.0, shift_z=0.0,
                  use_quaternion=False, q=None,
@@ -270,37 +270,26 @@ if __name__ == "__main__":
     img_mat, z_buff = render_model(
         model_path="mod.obj",
         #texture_path="bunny-atlas.jpg",
-        a=20, b=50, g=10,
-        t_x=0, t_y=0, t_z=0.2,
-        scale_x=1.5, scale_y=1.5, scale_z=1.5,  
-        shift_x=0.1, shift_y=-0.1, shift_z=0.0   
+        #a=0, b=0, g=0,
+        #t_x=0, t_y=0, t_z=0.2,
+        #scale_x=1.5, scale_y=1.5, scale_z=1.5,  
+        #shift_x=0.1, shift_y=-0.1, shift_z=0.0   
     )
     
     print("Рендеринг 2 модели...")
     img_mat, z_buff = render_model(
-        model_path="mod1.obj",
-        #texture_path="bunny-atlas.jpg",
-        a=-30, b=150, g=50,
-        t_x=-0.01, t_y=0.03, t_z=10,
-        scale_x=0.8, scale_y=0.8, scale_z=0.8,  
-        shift_x=0.0, shift_y=0.2, shift_z=0.1,   
-        img_mat=img_mat,
-        z_buff=z_buff
-    )
-    
-    print("Рендеринг 3 модели...")
-    img_mat, z_buff = render_model(
-        model_path="mod1.obj",
-        texture_path="12268_banjofrog_diffuse.jpg",
-        t_x=-0.01, t_y=0.03, t_z=10,
-        scale_x=1, scale_y=1, scale_z=1,  
-        shift_x=0.1, shift_y=3, shift_z=0.1,   
+        model_path="model_1.obj",
+        texture_path="bunny-atlas.jpg",
+        a=120, b=50, g=10,
+        t_x=0, t_y=0, t_z=0.2,
+        scale_x=1.5, scale_y=1.5, scale_z=1.5,  
+        shift_x=0.1, shift_y=-0.1, shift_z=0.0,   
         img_mat=img_mat,
         z_buff=z_buff
     )
 
     # Сохранение результата
-    save_image(img_mat, 'result.png')
+    save_image(img_mat, 'result1.png')
     
     end_time = time.time()
     print(f"Время выполнения: {end_time - start_time:.2f} секунд")
