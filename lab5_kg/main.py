@@ -77,83 +77,11 @@ def render_model(model_path, texture_path=None,
     if use_quaternion and q is not None:
         V_T = transform_vertices_quat(V, q, t_x, t_y, t_z)
     else:
-        V_T = transform_vertices(V, math.radians(a), math.radians(b), math.radians(g), t_x, t_y, t_z)
+        V_T = transform_vertices(V, math.radians(a), math.radians(b), math.radians(g), t_x, t_y, t_z) # трансформа все
     
-    # Вычисление нормалей к вершинам
-    vertex_normals = {}
-    for face in F:
-        v0_idx, v1_idx, v2_idx = face[0]-1, face[1]-1, face[2]-1
-        v0 = np.array(V_T[v0_idx])
-        v1 = np.array(V_T[v1_idx])
-        v2 = np.array(V_T[v2_idx])
-        edge1 = v1 - v0
-        edge2 = v2 - v0
-        face_normal = np.cross(edge1, edge2)
-        norm = np.linalg.norm(face_normal)
-        if norm != 0:
-            face_normal /= norm
-        for idx in [v0_idx, v1_idx, v2_idx]:
-            if idx not in vertex_normals:
-                vertex_normals[idx] = []
-            vertex_normals[idx].append(face_normal)
-    
-    for idx in vertex_normals:
-        normals = vertex_normals[idx]
-        avg_normal = np.mean(normals, axis=0)
-        norm = np.linalg.norm(avg_normal)
-        if norm != 0:
-            avg_normal /= norm
-        vertex_normals[idx] = avg_normal
-    
-    # Вектор освещения
-    l = np.array([0, 0, 1])
-    
-    # Рендеринг треугольников
-    for idx, face in enumerate(F):
-        v0_idx, v1_idx, v2_idx = face[0]-1, face[1]-1, face[2]-1
-        
-        # Получаем текстурные координаты, если они есть
-        if idx < len(FT) and FT and VT:
-            vt0_idx, vt1_idx, vt2_idx = FT[idx][0]-1, FT[idx][1]-1, FT[idx][2]-1
-            vt0 = VT[vt0_idx]
-            vt1 = VT[vt1_idx]
-            vt2 = VT[vt2_idx]
-        else:
-            # Если нет текстурных координат, используем нулевые
-            vt0 = vt1 = vt2 = [0, 0]
-        
-        v0_3d = V_T[v0_idx]
-        v1_3d = V_T[v1_idx]
-        v2_3d = V_T[v2_idx]
-        
-        n0 = vertex_normals[v0_idx]
-        n1 = vertex_normals[v1_idx]
-        n2 = vertex_normals[v2_idx]
-        
-        I0 = np.dot(n0, l)
-        I1 = np.dot(n1, l)
-        I2 = np.dot(n2, l)
-        
-        v0_proj = project_vertex(v0_3d, AX, AY, U0, V0, t_z)
-        v1_proj = project_vertex(v1_3d, AX, AY, U0, V0, t_z)
-        v2_proj = project_vertex(v2_3d, AX, AY, U0, V0, t_z)
-        
-        triangle(
-            v0_proj[0], v0_proj[1], v0_proj[2],
-            v1_proj[0], v1_proj[1], v1_proj[2],
-            v2_proj[0], v2_proj[1], v2_proj[2],
-            img_mat, z_buff, I0, I1, I2,
-            vt0, vt1, vt2,
-            has_texture=has_texture,
-            texture_array=texture_array if has_texture else None,
-            W_T=W_T if has_texture else 1,
-            H_T=H_T if has_texture else 1
-        )
-    
-    return img_mat, z_buff
 
 def triangle(x0, y0, z0, x1, y1, z1, x2, y2, z2, img, z_buff, I0, I1, I2, vt0, vt1, vt2,
-             has_texture=False, texture_array=None, W_T=1, H_T=1):
+             has_texture=False, texture_array=None, W_T=1, H_T=1):  # in tri
     # Определяем границы треугольника с учетом границ изображения
     xmin = int(max(0, min(x0, x1, x2)))
     ymin = int(max(0, min(y0, y1, y2)))
@@ -176,7 +104,7 @@ def triangle(x0, y0, z0, x1, y1, z1, x2, y2, z2, img, z_buff, I0, I1, I2, vt0, v
                         tex_y = min(max(0, round(H_T * v)), H_T-1)
                         color = -I * texture_array[tex_y, tex_x]
                     else:
-                        # Если нет текстуры, используем серый цвет с тонировкой Гуро
+                        # Если нет текстуры используем серый цвет 
                         gray = int(-I * 255)
                         color = np.array([gray, gray, gray])
                     
@@ -257,6 +185,80 @@ def quaternion_to_matrix(q):
         [2*x*z - 2*y*w,           2*y*z + 2*x*w,       1 - 2*x**2 - 2*y**2]
     ])
 
+    # Вычисление нормалей к вершинам
+    vertex_normals = {}
+    for face in F:
+        v0_idx, v1_idx, v2_idx = face[0]-1, face[1]-1, face[2]-1
+        v0 = np.array(V_T[v0_idx])
+        v1 = np.array(V_T[v1_idx])
+        v2 = np.array(V_T[v2_idx])
+        edge1 = v1 - v0
+        edge2 = v2 - v0
+        face_normal = np.cross(edge1, edge2)
+        norm = np.linalg.norm(face_normal)
+        if norm != 0:
+            face_normal /= norm
+        for idx in [v0_idx, v1_idx, v2_idx]:
+            if idx not in vertex_normals:
+                vertex_normals[idx] = []
+            vertex_normals[idx].append(face_normal)
+    
+    for idx in vertex_normals:
+        normals = vertex_normals[idx]
+        avg_normal = np.mean(normals, axis=0)
+        norm = np.linalg.norm(avg_normal)
+        if norm != 0:
+            avg_normal /= norm
+        vertex_normals[idx] = avg_normal
+    
+    # Вектор освещения
+    l = np.array([0, 0, 1])
+    
+    # Рендеринг треугольников
+    for idx, face in enumerate(F):
+        v0_idx, v1_idx, v2_idx = face[0]-1, face[1]-1, face[2]-1
+        
+        # Получаем текстурные координаты 
+        if idx < len(FT) and FT and VT:
+            vt0_idx, vt1_idx, vt2_idx = FT[idx][0]-1, FT[idx][1]-1, FT[idx][2]-1
+            vt0 = VT[vt0_idx]
+            vt1 = VT[vt1_idx]
+            vt2 = VT[vt2_idx]
+        else:
+            # Если нет текстурных координат, используем нулевые
+            vt0 = vt1 = vt2 = [0, 0]
+        
+        v0_3d = V_T[v0_idx]
+        v1_3d = V_T[v1_idx]
+        v2_3d = V_T[v2_idx]
+        
+        n0 = vertex_normals[v0_idx]
+        n1 = vertex_normals[v1_idx]
+        n2 = vertex_normals[v2_idx]
+        
+        I0 = np.dot(n0, l)
+        I1 = np.dot(n1, l)
+        I2 = np.dot(n2, l)
+        
+        v0_proj = project_vertex(v0_3d, AX, AY, U0, V0, t_z)
+        v1_proj = project_vertex(v1_3d, AX, AY, U0, V0, t_z)
+        v2_proj = project_vertex(v2_3d, AX, AY, U0, V0, t_z)
+        
+        triangle(
+            v0_proj[0], v0_proj[1], v0_proj[2],
+            v1_proj[0], v1_proj[1], v1_proj[2],
+            v2_proj[0], v2_proj[1], v2_proj[2],
+            img_mat, z_buff, I0, I1, I2,
+            vt0, vt1, vt2,
+            has_texture=has_texture,
+            texture_array=texture_array if has_texture else None,
+            W_T=W_T if has_texture else 1,
+            H_T=H_T if has_texture else 1
+        )
+    
+    return img_mat, z_buff
+
+
 def save_image(img_mat, filename):
     img = Image.fromarray(img_mat, mode='RGB')
     img = ImageOps.flip(img)
@@ -272,8 +274,8 @@ if __name__ == "__main__":
         #texture_path="bunny-atlas.jpg",
         a=20, b=50, g=10,
         t_x=0, t_y=0, t_z=0.2,
-        scale_x=1.5, scale_y=1.5, scale_z=1.5,  # Увеличение в 1.5 раза
-        shift_x=0.1, shift_y=-0.1, shift_z=0.0   # Сдвиг по X и Y
+        scale_x=1.5, scale_y=1.5, scale_z=1.5,  
+        shift_x=0.1, shift_y=-0.1, shift_z=0.0   
     )
     
     print("Рендеринг 2 модели...")
@@ -282,8 +284,8 @@ if __name__ == "__main__":
         #texture_path="bunny-atlas.jpg",
         a=-30, b=150, g=50,
         t_x=-0.01, t_y=0.03, t_z=10,
-        scale_x=0.8, scale_y=0.8, scale_z=0.8,  # Уменьшение в 0.8 раза
-        shift_x=0.0, shift_y=0.2, shift_z=0.1,   # Сдвиг по Y и Z
+        scale_x=0.8, scale_y=0.8, scale_z=0.8,  
+        shift_x=0.0, shift_y=0.2, shift_z=0.1,   
         img_mat=img_mat,
         z_buff=z_buff
     )
