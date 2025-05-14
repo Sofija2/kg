@@ -49,7 +49,6 @@ def render_model(model_path, texture_path=None,
         if not s:
             continue
         if s[0] == 'v':
-            # Применяем сдвиг и масштабирование к вершинам
             x = float(s[1]) * scale_x + shift_x
             y = float(s[2]) * scale_y + shift_y
             z = float(s[3]) * scale_z + shift_z
