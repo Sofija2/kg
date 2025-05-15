@@ -3,8 +3,8 @@ import math
 from PIL import Image, ImageOps
 import time
 
-IMAGE_WIDTH = 4000
-IMAGE_HEIGHT = 4000
+IMAGE_WIDTH = 1000
+IMAGE_HEIGHT = 100
 AX = 5000  
 AY = 5000 
 U0 = IMAGE_WIDTH // 2  
@@ -59,7 +59,7 @@ def render_model(model_path, texture_path=None,
             f = [tuple(part.split('/')) for part in s[1:]]
             vertex_indices = [int(v[0]) for v in f]
             texture_indices = [int(v[1]) for v in f if len(v) > 1]
-            # Триангуляция полигонов с 4+ вершинами
+            # 4
             for i in range(1, len(vertex_indices) - 1):
                 F.append([
                     vertex_indices[0],
@@ -73,13 +73,13 @@ def render_model(model_path, texture_path=None,
                         texture_indices[i + 1]
                     ])
     
-    # Преобразование вершин
+   
     if use_quaternion and q is not None:
         V_T = transform_vertices_quat(V, q, t_x, t_y, t_z)
     else:
         V_T = transform_vertices(V, math.radians(a), math.radians(b), math.radians(g), t_x, t_y, t_z) # трансформа все
     
-    # Вычисление нормалей к вершинам
+    
     vertex_normals = {}
     for face in F:
         v0_idx, v1_idx, v2_idx = face[0]-1, face[1]-1, face[2]-1
@@ -249,8 +249,20 @@ def transform_vertices(vertices, a, b, g, t_x, t_y, t_z):
         ])
     return trans
 
+
+def quae_add(normal1, deg_1):
+    deg = math.radians(deg_1)
+    sin_half = math.sin(deg / 2)
+    cos_half = math.cos(deg / 2)
+    nx, ny, nz = normal1
+    norm = math.sqrt(nx**2 + ny**2 + nz**2)
+    nx, ny, nz = nx/norm, ny/norm, nz/norm
+    return (cos_half, nx * sin_half, ny * sin_half, nz * sin_half)
+
+
 def quaternion_to_matrix(q):
     w, x, y, z = q
+
     return np.array([
         [1 - 2*y**2 - 2*z**2,     2*x*y - 2*z*w,       2*x*z + 2*y*w],
         [2*x*y + 2*z*w,           1 - 2*x**2 - 2*z**2, 2*y*z - 2*x*w],
@@ -265,14 +277,16 @@ def save_image(img_mat, filename):
 if __name__ == "__main__":
     start_time = time.time()
     print("Начало обработки...")
+    normal1 = (0, 1, 0)
+    gard = 45
+    
     
     print("Рендеринг  модели 1...")
     img_mat, z_buff = render_model(
         model_path="mod.obj",
         texture_path="bunny-atlas.jpg",
         use_quaternion=True,
-        q=[0.9659, 0, 0.2588, 0],
-
+        q=quae_add(normal1,gard), 
         #scale_x=1.5, scale_y=1.5, scale_z=1.5,  
         shift_x=-0.1,  
     )

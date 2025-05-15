@@ -249,6 +249,8 @@ def transform_vertices(vertices, a, b, g, t_x, t_y, t_z):
         ])
     return trans
 
+
+
 def quaternion_to_matrix(q):
     w, x, y, z = q
     return np.array([
@@ -256,7 +258,19 @@ def quaternion_to_matrix(q):
         [2*x*y + 2*z*w,           1 - 2*x**2 - 2*z**2, 2*y*z - 2*x*w],
         [2*x*z - 2*y*w,           2*y*z + 2*x*w,       1 - 2*x**2 - 2*y**2]
     ])
+def quae_add(normal1, deg_1):
+    deg = math.radians(deg_1)
+    sin_half = math.sin(deg / 2)
+    cos_half = math.cos(deg / 2)
+    nx, ny, nz = normal1
+    norm = math.sqrt(nx**2 + ny**2 + nz**2)
+    nx, ny, nz = nx/norm, ny/norm, nz/norm
+    return (cos_half, nx * sin_half, ny * sin_half, nz * sin_half)
 
+normal1 = (0, 1, 0)
+gard = 45
+q=quae_add(normal1,gard)
+print(q)
 def save_image(img_mat, filename):
     img = Image.fromarray(img_mat, mode='RGB')
     img = ImageOps.flip(img)
